@@ -8,6 +8,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.RelativeEncoder;
 import frc.robot.Constants;
+// AdvantageScope view için gerekli kütüphane
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ShooterSubsystem extends SubsystemBase {
   // Hardware Components
@@ -40,10 +42,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Read the Square button state from the PS5 controller
+    // 1. Read the Square button state from the PS5 controller
     m_currentButtonState = m_driverController.getHID().getSquareButton();
 
-    // Check for "Rising Edge" (button just pressed)
+    // 2. Check for "Rising Edge" (button just pressed)
     if (m_currentButtonState && !m_lastButtonState) {
         m_isMotorRunning = !m_isMotorRunning; // Flip the state
         
@@ -54,8 +56,18 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
     
-    // Save current state for the next loop
+    // 3. Save current state for the next loop
     m_lastButtonState = m_currentButtonState;
+
+    // 4. Send Data to AdvantageScope / SmartDashboard
+    // This allows you to see the real-time RPM on a graph
+    SmartDashboard.putNumber("Shooter/ActualRPM", m_encoder.getVelocity());
+    
+    // This allows you to see what the robot "thinks" it should be doing
+    SmartDashboard.putNumber("Shooter/TargetRPM", m_isMotorRunning ? 3000 : 0);
+    
+    // Optional: Monitor motor temperature to prevent overheating
+    SmartDashboard.putNumber("Shooter/MotorTemp", m_motor.getMotorTemperature());
   }
 
   /**
